@@ -180,12 +180,12 @@ class YoloLayer(nn.Module):
 
             self.metrics = {
                 "loss":  to_cpu(total_loss).item(),
-                "x":  to_cpu(loss_x).item(),
-                "y":  to_cpu(loss_y).item(),
-                "w":  to_cpu(loss_w).item(),
-                "h":  to_cpu(loss_h).item(),
-                "conf":  to_cpu(loss_conf).item(),
-                "cls":  to_cpu(loss_cls).item(),
+                "loss_x":  to_cpu(loss_x).item(),
+                "loss_y":  to_cpu(loss_y).item(),
+                "loss_w":  to_cpu(loss_w).item(),
+                "loss_h":  to_cpu(loss_h).item(),
+                "loss_conf":  to_cpu(loss_conf).item(),
+                "loss_cls":  to_cpu(loss_cls).item(),
                 "cls_acc":  to_cpu(cls_acc).item(),
                 "recall50":  to_cpu(recall50).item(),
                 "recall75":  to_cpu(recall75).item(),
@@ -304,6 +304,7 @@ class MyNet(nn.Module):
         self.cfgfile = config_path
         self.list_of_config = read_config(self.cfgfile)
         self.seqs, self.list_of_types, self.net_info = create_modules(self.list_of_config)
+        self.yolo_layers = [layer[0] for layer in self.seqs if hasattr(layer[0], "metrics")]
         self.seen = 0
         self.header = np.array([0, 0, 0, self.seen, 0], dtype=np.int32)
 
@@ -331,7 +332,7 @@ class MyNet(nn.Module):
         yolo_outputs = torch.cat(yolo_outputs, 1)
         return   yolo_outputs if targets==None else  (total_loss,yolo_outputs)
 
-    def load_weights(self,weights_path):
+    def load_weights(self,weights_path,cutoff=None):
         '''
         open and parse weights_file
         '''
@@ -342,12 +343,10 @@ class MyNet(nn.Module):
             weights = np.fromfile(fd, dtype=np.float32) # read the rest file
         
         # Establish cutoff for loading backbone weights
-        cutoff = None
+        cutoff = cutoff
         if "darknet53.conv.74" in weights_path:
             cutoff = 75
-
         ptr = 0
-
         for index, (block, seq) in enumerate(zip(self.list_of_config[1:],self.seqs)):
             if index == cutoff:
                 break            

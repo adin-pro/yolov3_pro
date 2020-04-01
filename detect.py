@@ -17,7 +17,7 @@ if __name__ =='__main__':
                             default='img/test_out')
     argparser.add_argument('-wght','--weight',type=str,help='the yolov3 weights',default='weights/yolov3pro.weights')
     argparser.add_argument('-cfg','--config',type=str,help='path of config file', default='cfg/yolov3pro.cfg')
-    argparser.add_argument('-clsn',"--class_name", type=str, default="img/class_name.txt", help="path to class label file")
+    argparser.add_argument('-clsn',"--class_name", type=str, default="img/kitti_names.txt", help="path to class label file")
     argparser.add_argument("--conf_thres", type=float, default=0.8, help="object confidence threshold")
     argparser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     argparser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
